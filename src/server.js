@@ -101,12 +101,11 @@ app.post('/webhook(/pix)?', (req, res) => {
                 const {
                     userId,
                     validity,
-                    tested
                 } = newData
                 await db.collection('users').doc(userId).update({
                     userBot: ({
                         validity,
-                        tested
+                        tested: true
                     })
                 })
             }
