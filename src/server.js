@@ -102,11 +102,22 @@ app.post('/webhook(/pix)?', (req, res) => {
                     userId,
                     validity,
                 } = newData
-                await db.collection('users').doc(userId).update({
-                    userBot: ({
+
+                let data_user = {}
+                if(data.userBot.hasOwnProperty('chat_id')){
+                    data_user = {
                         validity,
-                        tested: true
-                    })
+                        tested: true,
+                        chat_id: data.userBot.chat_id
+                    }
+                }else{
+                    data_user = {
+                        validity,
+                        tested: true,
+                    }
+                }
+                await db.collection('users').doc(userId).update({
+                    userBot: (data_user)
                 })
             }
         }
