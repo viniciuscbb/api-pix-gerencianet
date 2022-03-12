@@ -97,16 +97,28 @@ app.post('/webhook(/pix)?', (req, res) => {
             const userData = await db.collection('users').doc(data1.userID).get()
             if (userData.exists) {
                 const data = userData.data()
-                const newData = calcularData(data.userBot.validity, data.userBot.tested, data1.texto, data1.userID)
+                const newData = calcularData(data.userBot.validity, data1.texto, data1.userID)
                 const {
                     userId,
                     validity,
                 } = newData
-                await db.collection('users').doc(userId).update({
-                    userBot: ({
+
+                let data_user = {}
+                if(data.userBot.hasOwnProperty('chat_id')){
+                    data_user = {
+                        chat_id: data.userBot.chat_id,
                         validity,
                         tested: true
-                    })
+                    }
+                }else{
+                    data_user = {
+                        validity,
+                        tested: true
+                    }
+                }
+
+                await db.collection('users').doc(userId).update({
+                    userBot: (data_user)
                 })
             }
         }
@@ -115,13 +127,23 @@ app.post('/webhook(/pix)?', (req, res) => {
     res.send('200');
 });
 
-const calcularData = (validade, tested) => {
+const calcularData = (validade, texto, userId) => {
     const now = new Date();
     const past = new Date(validade.seconds * 1000)
     const diff = past.getTime() - now.getTime()
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
     let validity = null
-    let dayRenew = 1
+    let dayRenew = 30
+
+    if (texto == '1 Mês de VIP') {
+        dayRenew = 30
+    } else if (texto == '3 Meses com 10% de desconto') {
+        dayRenew = 90
+    } else if (texto == '6 Meses com 20% de desconto') {
+        dayRenew = 180
+    } else {
+        dayRenew = 30
+    }
 
     if (days > 0) {
         past.setDate(past.getDate() + dayRenew)
@@ -131,8 +153,8 @@ const calcularData = (validade, tested) => {
         validity = now
     }
     const data = {
+        userId,
         validity,
-        tested
     }
 
     return data
