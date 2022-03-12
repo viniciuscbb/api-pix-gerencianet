@@ -154,17 +154,28 @@ app.get('/attdatauser', async (req, res) => {
         const data1 = doc.data()
         const userID = doc.id
         const newData = calcularData(data1.userBot.validity, data1.userBot.tested)
+        let data = {}
         const {
             validity,
             tested
         } = newData
 
-        console.log(`${userID} ${validity} ${tested}`)
-        await db.collection('users').doc(userID).update({
-            userBot: ({
+        if(data1.userBot.hasOwnProperty('chat_id')){
+            data = {
+                chat_id: data1.userBot.chat_id,
                 validity,
                 tested
-            })
+            }
+        }else{
+            data = {
+                validity,
+                tested
+            }
+        }
+        
+        console.log(data)
+        await db.collection('users').doc(userID).update({
+            userBot: (data)
         })
     });
 })
