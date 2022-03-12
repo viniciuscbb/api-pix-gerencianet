@@ -98,15 +98,26 @@ app.post('/webhook(/pix)?', (req, res) => {
             if (userData.exists) {
                 const data = userData.data()
                 const newData = calcularData(data.userBot.validity, data.userBot.tested, data1.texto, data1.userID)
+                let data_set = {}
                 const {
                     userId,
                     validity,
                 } = newData
-                await db.collection('users').doc(userId).update({
-                    userBot: ({
+
+                if(data.userBot.hasOwnProperty('chat_id')){
+                    data_set = {
+                        chat_id: data.userBot.chat_id,
                         validity,
                         tested: true
-                    })
+                    }
+                }else{
+                    data_set = {
+                        validity,
+                        tested: true
+                    }
+                }
+                await db.collection('users').doc(userId).update({
+                    userBot: (data_set)
                 })
             }
         }
@@ -138,7 +149,7 @@ const calcularData = (validade, tested) => {
     return data
 }
 
-app.get('/attdatauser', async (req, res) => {
+/*app.get('/attdatauser', async (req, res) => {
     if (!firebase.apps.length) {
         firebase.initializeApp({
             credential: firebase.credential.cert(serviceAccount)
@@ -178,7 +189,7 @@ app.get('/attdatauser', async (req, res) => {
             userBot: (data)
         })
     });
-})
+})*/
 app.listen(8000, () => {
     console.log('running');
 })
