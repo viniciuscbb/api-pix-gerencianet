@@ -133,7 +133,7 @@ const calcularData = (validade, texto, refund) => {
     let dayRenew = 30
 
     if (refund){
-        now = now.setDate(now.getDate() - 1)
+        now.setDate(now.getDate() - 1)
         return now
     }
 
