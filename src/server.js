@@ -133,7 +133,8 @@ const calcularData = (validade, texto, refund) => {
     let dayRenew = 30
 
     if (refund){
-        return now.setDate(now.getDate() - 1)
+        now = now.setDate(now.getDate() - 1)
+        return now
     }
 
     if (texto == '1 Mês de VIP') {
