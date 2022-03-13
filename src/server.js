@@ -97,12 +97,9 @@ app.post('/webhook(/pix)?', (req, res) => {
             const userData = await db.collection('users').doc(data1.userID).get()
             if (userData.exists) {
                 const data = userData.data()
-                const newData = calcularData(data.userBot.validity, data1.texto, data1.userID)
-                const {
-                    userId,
-                    validity,
-                } = newData
-
+                const refund = pix.hasOwnProperty('devolucoes') ? true : false
+                const validity = calcularData(data.userBot.validity, data1.texto, refund)
+                
                 let data_user = {}
                 if(data.userBot.hasOwnProperty('chat_id')){
                     data_user = {
@@ -117,7 +114,7 @@ app.post('/webhook(/pix)?', (req, res) => {
                     }
                 }
 
-                await db.collection('users').doc(userId).update({
+                await db.collection('users').doc(data1.userID).update({
                     userBot: (data_user)
                 })
             }
@@ -127,13 +124,17 @@ app.post('/webhook(/pix)?', (req, res) => {
     res.send('200');
 });
 
-const calcularData = (validade, texto, userId) => {
+const calcularData = (validade, texto, refund) => {
     const now = new Date();
     const past = new Date(validade.seconds * 1000)
     const diff = past.getTime() - now.getTime()
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
     let validity = null
     let dayRenew = 30
+
+    if (refund){
+        return now.setDate(now.getDate() - 1)
+    }
 
     if (texto == '1 Mês de VIP') {
         dayRenew = 30
@@ -152,15 +153,11 @@ const calcularData = (validade, texto, userId) => {
         now.setDate(now.getDate() + dayRenew)
         validity = now
     }
-    const data = {
-        userId,
-        validity,
-    }
 
-    return data
+    return validity
 }
 
-app.get('/attdatauser', async (req, res) => {
+/*app.get('/attdatauser', async (req, res) => {
     if (!firebase.apps.length) {
         firebase.initializeApp({
             credential: firebase.credential.cert(serviceAccount)
@@ -200,7 +197,7 @@ app.get('/attdatauser', async (req, res) => {
             userBot: (data)
         })
     });
-})
+})*/
 app.listen(8000, () => {
     console.log('running');
 })
