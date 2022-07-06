@@ -141,7 +141,7 @@ const calcularData = (validade, texto, refund) => {
         dayRenew = 30
     } else if (texto == '3 Meses com 10% de desconto') {
         dayRenew = 90
-    } else if (texto == '6 Meses com 20% de desconto') {
+    } else if (texto == '6 Meses com 15% de desconto') {
         dayRenew = 180
     } else {
         dayRenew = 30
